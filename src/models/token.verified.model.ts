@@ -14,4 +14,6 @@ const TokenVerifiedSchema = new mongoose.Schema({
   expiresAt: {type: Date, required: true},
 })
 
+TokenVerifiedSchema.index({"expiresAt": 1}, {expireAfterSeconds: 0});
+
 export const TokenVerifiedModel = mongoose.model<IVerificationToken>("TokenVerified", TokenVerifiedSchema);
