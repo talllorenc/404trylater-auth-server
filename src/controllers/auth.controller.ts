@@ -1,6 +1,6 @@
 import {Request, Response} from "express";
 import {compareValue, hashValue} from "../utils/bcrypt";
-import {BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, OK} from "../constants/http";
+import {BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, OK, UNAUTHORIZED} from "../constants/http";
 import {JWT_SECRET, JWT_REFRESH_SECRET} from "../constants/env";
 import {ISignin, ISignup} from "../types/auth";
 import {UserModel} from "../models/user.model";
@@ -9,7 +9,7 @@ import {sendVerificationEmail} from "../utils/sendMail";
 import {generateEmailToken} from "../utils/jwt.tokens";
 import { SessionsModel } from "../models/session.model";
 import jwt from "jsonwebtoken";
-import { setAuthCookies } from "../utils/cookies";
+import { clearAuthCookies, setAuthCookies } from "../utils/cookies";
 
 export const signupHandler = async (req: Request, res: Response) => {
   const {username, email, password}: ISignup = req.body;
@@ -96,7 +96,7 @@ export const signinHandler = async (req: Request, res: Response) => {
       { ...sessionInfo, userId: user._id },
       JWT_SECRET,
       {
-        expiresIn: "30m",
+        expiresIn: "30d",
       }
     )
 
@@ -149,3 +149,28 @@ export const verifyEmailHandler = async (req: Request, res: Response) => {
     return res.status(INTERNAL_SERVER_ERROR).json({ message: 'Server error'});
   }
 };
+
+export const logout = async (req: Request, res: Response) => {
+  const accessToken = req.cookies.accessToken as string | undefined;
+
+  if (!accessToken) {
+    return res.status(UNAUTHORIZED).json({ message: "Not authorized" });
+  }
+
+  jwt.verify(accessToken, JWT_SECRET, async (err, decoded) => {
+    
+    if (err || !decoded) {
+      return res.status(UNAUTHORIZED).json({ message: "Invalid token" });
+    }
+
+    const { sessionId } = decoded as { sessionId: string };
+
+    if (sessionId) {
+      await SessionsModel.findByIdAndDelete(sessionId);
+    }
+
+    clearAuthCookies(res)
+      .status(OK)
+      .json({ message: "Logout successful" });
+  });
+}

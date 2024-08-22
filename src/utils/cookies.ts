@@ -12,7 +12,7 @@ const defaults: CookieOptions = {
 
 export const getAccessTokenCookieOptions = (): CookieOptions => ({
   ...defaults,
-  maxAge: 15 * 60 * 1000,
+  maxAge: 30 * 24 * 60 * 60 * 1000,
 });
 
 export const getRefreshTokenCookieOptions = (): CookieOptions => ({
@@ -32,3 +32,8 @@ export const setAuthCookies = ({ res, accessToken, refreshToken }: Params) => {
     .cookie("accessToken", accessToken, getAccessTokenCookieOptions())
     .cookie("refreshToken", refreshToken, getRefreshTokenCookieOptions());
 };
+
+export const clearAuthCookies = (res: Response) =>
+  res
+    .clearCookie("accessToken")
+    .clearCookie("refreshToken", { path: REFRESH_PATH });
