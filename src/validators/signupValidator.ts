@@ -2,18 +2,18 @@ import { Request, Response, NextFunction } from "express";
 import { body, validationResult } from "express-validator";
 import {BAD_REQUEST} from "../constants/http";
 
-const registrationValidator = [
+const signupValidator = [
   body("email")
     .isEmail()
     .isLength({min:1, max:255})
     .withMessage("Invalid email"),
   body("username")
     .isLength({ min: 4 })
-    .withMessage("Name must be at least 5 characters long"),
+    .withMessage("Name must be at least 4 characters long"),
   body("password")
     .isLength({ min: 6 })
     .withMessage("Password must be at least 6 characters long")
-    // .matches(/^(?=.*[A-Z])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]+$/)
+    .matches(/^(?=.*[A-Z])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]+$/)
     .withMessage(
       "The password must contain at least one capital letter and one special character"
     ),
@@ -32,4 +32,4 @@ const registrationValidator = [
   },
 ];
 
-export default registrationValidator;
+export default signupValidator;
