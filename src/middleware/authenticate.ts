@@ -16,18 +16,15 @@ export const authenticate = async (
   const accessToken = req.cookies.accessToken as string | undefined;
 
   if (!accessToken) {
-    return res.status(UNAUTHORIZED).json({ message: "Not authorized" });
+    return res.status(UNAUTHORIZED).json({ message: "InvalidAccessToken" });
   }
 
   jwt.verify(accessToken, JWT_SECRET, (err, decoded) => {
     if (err) {
-      const errorMessage =
-        err.name === "TokenExpiredError" ? "Token expired" : "Invalid token";
-      return res.status(UNAUTHORIZED).json({ message: errorMessage });
+      return res.status(UNAUTHORIZED).json({ message: "InvalidAccessToken" });
     }
 
     req.userId = (decoded as { userId: string }).userId;
-    req.sessionId = (decoded as { sessionId: string }).sessionId;
 
     next();
   });

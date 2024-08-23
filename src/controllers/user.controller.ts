@@ -19,7 +19,7 @@ export const getUserHandler = async (req: AuthRequest, res: Response) => {
       res.status(NOT_FOUND).json({ message: "User not found" });
     }
 
-    res.status(OK).json({ user });
+    res.status(OK).json(user);
   } catch (error) {
     res.status(INTERNAL_SERVER_ERROR).send({
       message: "Internal server error",
