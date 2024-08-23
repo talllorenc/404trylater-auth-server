@@ -16,7 +16,7 @@ export const authenticate = async (
   const accessToken = req.cookies.accessToken as string | undefined;
 
   if (!accessToken) {
-    return res.status(UNAUTHORIZED).json({ message: "InvalidAccessToken" });
+    return res.status(UNAUTHORIZED).json({ message: "Unauthorized" });
   }
 
   jwt.verify(accessToken, JWT_SECRET, (err, decoded) => {
