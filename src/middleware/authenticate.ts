@@ -1,31 +1,27 @@
-import { Request, Response, NextFunction } from "express";
-import { UNAUTHORIZED } from "../constants/http";
-import jwt from "jsonwebtoken";
-import { JWT_SECRET } from "../constants/env";
+import { Request, Response, NextFunction } from 'express';
+import { FORBIDDEN, UNAUTHORIZED } from '../constants/http';
+import jwt from 'jsonwebtoken';
+import { JWT_SECRET } from '../constants/env';
 
 interface IIsAuth extends Request {
   userId?: string;
   sessionId?: string;
 }
 
-export const authenticate = async (
-  req: IIsAuth,
-  res: Response,
-  next: NextFunction
-) => {
+export const authenticate = (req: IIsAuth, res: Response, next: NextFunction) => {
   const accessToken = req.cookies.accessToken as string | undefined;
 
   if (!accessToken) {
-    return res.status(UNAUTHORIZED).json({ message: "Unauthorized" });
+    return res.status(UNAUTHORIZED).json({ message: 'Not authorized' });
   }
 
-  jwt.verify(accessToken, JWT_SECRET, (err, decoded) => {
-    if (err) {
-      return res.status(UNAUTHORIZED).json({ message: "InvalidAccessToken" });
-    }
+  try {
+    const decoded = jwt.verify(accessToken, JWT_SECRET) as { userId: string };
 
-    req.userId = (decoded as { userId: string }).userId;
+    req.userId = decoded.userId;
 
     next();
-  });
+  } catch (err) {
+    res.status(UNAUTHORIZED).json({ message: 'InvalidAccessToken' });
+  }
 };

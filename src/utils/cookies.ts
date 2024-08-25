@@ -12,7 +12,7 @@ const defaults: CookieOptions = {
 
 export const getAccessTokenCookieOptions = (): CookieOptions => ({
   ...defaults,
-  maxAge: 60 * 60 * 1000,
+  maxAge: 60 * 1000,
 });
 
 export const getRefreshTokenCookieOptions = (): CookieOptions => ({
